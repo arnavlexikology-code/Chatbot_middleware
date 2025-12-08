@@ -82,6 +82,7 @@ export default function Page() {
     }, 60000);
     return () => clearInterval(id);
   }, []);
+  
 
   // =============================================
   // SEND MESSAGE TO BACKEND
