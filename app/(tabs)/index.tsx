@@ -74,6 +74,7 @@ export default function Page() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [tick, setTick] = useState(0);
+  const [hasLoadedIntro, setHasLoadedIntro] = useState(false);
 
   // Re-render timeAgo() every 60 seconds
   useEffect(() => {
@@ -82,6 +83,42 @@ export default function Page() {
     }, 60000);
     return () => clearInterval(id);
   }, []);
+
+  // Load intro message on first app open
+  useEffect(() => {
+    const loadIntroMessage = async () => {
+      if (hasLoadedIntro) return;
+      
+      try {
+        // Send empty message to trigger Copilot's intro
+        const response = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "" }), // Empty to get intro
+        });
+
+        const data = await response.json();
+        
+        if (data.reply) {
+          const introMessage: Message = {
+            id: "intro-" + Date.now(),
+            from: "bot",
+            text: data.reply,
+            timestamp: new Date().toISOString(),
+            kind: "normal",
+          };
+          setMessages([introMessage]);
+        }
+        
+        setHasLoadedIntro(true);
+      } catch (error) {
+        console.error("Failed to load intro:", error);
+        setHasLoadedIntro(true); // Don't retry on error
+      }
+    };
+
+    loadIntroMessage();
+  }, [hasLoadedIntro]);
   
 
   // =============================================
