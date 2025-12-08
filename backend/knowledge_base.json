@@ -1,0 +1,188 @@
+{
+  "id": "activity-knowledge-base-001",
+  "type": "message",
+  "timestamp": "2025-01-01T00:00:00.000Z",
+  "serviceUrl": "https://example.contoso.com",
+  "channelId": "webchat",
+  "conversation": {
+    "id": "conv-knowledge-base-001"
+  },
+  "from": {
+    "id": "agent-learning",
+    "name": "Learning Assistant",
+    "role": "bot"
+  },
+  "recipient": {
+    "id": "user-001",
+    "name": "Sample User",
+    "role": "user"
+  },
+  "replyToId": "incoming-activity-id-0001",
+  "locale": "en-US",
+  "text": "Here is the learning knowledge base for Python and React.",
+  "channelData": {
+    "responseType": "knowledgeBase",
+    "knowledgeBase": {
+      "python": {
+        "topic": "Python Programming",
+        "level": "Beginner → Intermediate",
+        "durationWeeks": 6,
+        "modules": [
+          {
+            "title": "Week 1 – Setup & Basics",
+            "description": "Install Python, run your first script, understand variables and basic data types.",
+            "dailyPlan": [
+              "Learn Python installation, IDE setup, and environment basics.",
+              "Understand variables, data types, and input/output.",
+              "Follow guided examples for printing, formatting, and simple calculations.",
+              "Practice exercises on variables and type conversions.",
+              "Review concepts and complete a mini-quiz."
+            ]
+          },
+          {
+            "title": "Week 2 – Control Flow",
+            "description": "If/else, loops, logical operators and simple console programs.",
+            "dailyPlan": [
+              "Learn conditional statements and logical operators.",
+              "Watch tutorials on if/elif/else and decision structures.",
+              "Practice writing branching logic and comparisons.",
+              "Work on loops: for-loops, while-loops, and iterations.",
+              "Build a small console program combining conditions and loops."
+            ]
+          },
+          {
+            "title": "Week 3 – Data Structures",
+            "description": "Lists, tuples, sets, dictionaries, and when to use each one.",
+            "dailyPlan": [
+              "Learn list operations, slicing, and list methods.",
+              "Study tuples and sets — differences and practical uses.",
+              "Practice solving problems using lists, sets, and data grouping.",
+              "Learn dictionaries and key-value operations.",
+              "Build a mini-task involving data parsing and grouping."
+            ]
+          },
+          {
+            "title": "Week 4 – Functions & Modules",
+            "description": "Write reusable functions, import modules, organize your code.",
+            "dailyPlan": [
+              "Learn how to define functions and pass parameters.",
+              "Watch content on return values and scope.",
+              "Practice writing modular, reusable functions.",
+              "Learn and use built-in Python modules.",
+              "Organize code in multiple files and build small utilities."
+            ]
+          },
+          {
+            "title": "Week 5 – Files & Errors",
+            "description": "Read/write files, handle exceptions, work with real-world data.",
+            "dailyPlan": [
+              "Learn file reading/writing using Python I/O.",
+              "Perform hands-on work with CSV, TXT, and JSON files.",
+              "Watch tutorials on exception handling.",
+              "Practice structured error-handling with try/except.",
+              "Build a data-processing mini script with error handling."
+            ]
+          },
+          {
+            "title": "Week 6 – Mini Project",
+            "description": "Build a small app (CLI to-do list, text game, or basic data analyzer).",
+            "dailyPlan": [
+              "Define project scope and set up folder structure.",
+              "Build core features and test functionality.",
+              "Add improvements and refactor code.",
+              "Write error-handling and edge-case logic.",
+              "Finalize, test, and prepare project demo."
+            ]
+          }
+        ],
+        "youtubeLinks": [
+          "https://www.youtube.com/watch?v=eWRfhZUzrAc"
+        ],
+        "linkedinLinks": [
+          "https://www.linkedin.com/learning/python-essential-training-18764650",
+          "https://www.linkedin.com/learning/paths/getting-started-with-python"
+        ]
+      },
+      "react": {
+        "topic": "React (Frontend Development)",
+        "level": "Beginner → Intermediate",
+        "durationWeeks": 6,
+        "modules": [
+          {
+            "title": "Week 1 – React Fundamentals",
+            "description": "JSX, components, props, and project setup.",
+            "dailyPlan": [
+              "Learn JSX basics and how React works.",
+              "Create your first components and pass props.",
+              "Watch intro React tutorials.",
+              "Practice building small UI components.",
+              "Review fundamentals and complete a mini-task."
+            ]
+          },
+          {
+            "title": "Week 2 – State & Events",
+            "description": "useState, event handlers, controlled inputs, and basic forms.",
+            "dailyPlan": [
+              "Learn useState and how state updates work.",
+              "Practice event handlers and controlled components.",
+              "Build basic form UI.",
+              "Watch videos on state patterns.",
+              "Build a small interactive component like a counter or form."
+            ]
+          },
+          {
+            "title": "Week 3 – Lists & Conditional UI",
+            "description": "Render lists, manage keys, and show/hide UI based on state.",
+            "dailyPlan": [
+              "Learn how to render lists and unique keys.",
+              "Practice mapping data into UI components.",
+              "Watch tutorials on conditional rendering.",
+              "Build a dynamic list with show/hide functionality.",
+              "Implement interactive UI with list updates."
+            ]
+          },
+          {
+            "title": "Week 4 – Effects & Data Fetching",
+            "description": "useEffect, call APIs, handle loading and error states.",
+            "dailyPlan": [
+              "Learn useEffect and dependency arrays.",
+              "Watch videos about API fetching in React.",
+              "Practice fetching JSON from a public API.",
+              "Add loading + error UI states.",
+              "Build a reusable API-request hook."
+            ]
+          },
+          {
+            "title": "Week 5 – Routing & Structure",
+            "description": "Use React Router, organize pages and layout components.",
+            "dailyPlan": [
+              "Learn React Router and how routes work.",
+              "Build navigation between pages.",
+              "Practice organizing layout components.",
+              "Build nested routes (dashboard, profile, etc.).",
+              "Refactor project structure for scalability."
+            ]
+          },
+          {
+            "title": "Week 6 – Capstone Project",
+            "description": "Build a small multi-page app such as a notes app or movie browser.",
+            "dailyPlan": [
+              "Plan your project and define components.",
+              "Build major functionality and routes.",
+              "Implement API integration (optional).",
+              "Add UI polish and state features.",
+              "Finalize, test, and deploy the project."
+            ]
+          }
+        ],
+        "youtubeLinks": [
+          "https://youtu.be/j942wKiXFu8?si=ngwEl4egCHIH0tEF"
+        ],
+        "linkedinLinks": [
+          "https://www.linkedin.com/learning/react-essential-training",
+          "https://www.linkedin.com/learning/paths/explore-react-js-development"
+        ]
+      }
+    }
+  }
+}

@@ -1,43 +1,105 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Environment files with credentials
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+mobile/.env
+mobile/.env.*
 
-# dependencies
+# Authentication tokens and cache
+backend/.local_token_cache.json
+*.token
+*.cache
+
+# Private keys and certificates
+*.key
+*.pem
+*.p8
+*.p12
+*.mobileprovision
+*.jks
+
+# ============================================
+# PYTHON / BACKEND
+# ============================================
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+backend/venv/
+backend/env/
+
+# Python specific
+*.egg-info/
+dist/
+build/
+
+# ============================================
+# NODE / MOBILE
+# ============================================
+
+# Dependencies
 node_modules/
+mobile/node_modules/
 
 # Expo
 .expo/
-dist/
-web-build/
-expo-env.d.ts
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+mobile/expo-env.d.ts
 
 # Native
 .kotlin/
 *.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
 
 # Metro
 .metro-health-check*
 
-# debug
+# Debug
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
+# TypeScript
 *.tsbuildinfo
 
-app-example
+# Generated native folders
+mobile/ios/
+mobile/android/
 
-# generated native folders
-/ios
-/android
+# ============================================
+# IDE / EDITOR
+# ============================================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# OS
+# ============================================
+
+.DS_Store
+Thumbs.db
+*.log
+
+# ============================================
+# PROJECT SPECIFIC
+# ============================================
+
+# Example/template files to keep
+!.env.example
+!backend/.env.example
