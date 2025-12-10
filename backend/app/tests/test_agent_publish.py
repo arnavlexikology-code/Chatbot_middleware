@@ -6,9 +6,8 @@ from fastapi.testclient import TestClient
 
 
 def get_client(monkeypatch) -> TestClient:
-    monkeypatch.setenv("BACKEND_SHARED_SECRET", "supersecret")
+    monkeypatch.setenv("INTERNAL_SHARED_SECRET", "supersecret")
     monkeypatch.setenv("MIDDLEWARE_BASE_URL", "http://middleware:8080")
-    monkeypatch.setenv("INTERNAL_SHARED_SECRET", "internal-secret")
     # Reload settings and app to pick up the new env var for each test.
     config_module = importlib.import_module("backend.app.config")
     importlib.reload(config_module)
@@ -63,9 +62,8 @@ async def test_agent_chat_publishes_typing_events(monkeypatch):
     """
     Test that /agent/chat calls CopilotService which publishes typing.start and typing.end events.
     """
-    monkeypatch.setenv("BACKEND_SHARED_SECRET", "supersecret")
+    monkeypatch.setenv("INTERNAL_SHARED_SECRET", "supersecret")
     monkeypatch.setenv("MIDDLEWARE_BASE_URL", "http://middleware:8080")
-    monkeypatch.setenv("INTERNAL_SHARED_SECRET", "internal-secret")
     
     # Reload modules
     config_module = importlib.import_module("backend.app.config")
@@ -141,7 +139,7 @@ async def test_agent_chat_publishes_typing_events(monkeypatch):
         # Verify headers were set correctly
         for call in calls:
             headers = call.kwargs.get("headers", {})
-            assert headers.get("X-Internal-Secret") == "internal-secret"
+            assert headers.get("X-Internal-Secret") == "supersecret"
             assert headers.get("Content-Type") == "application/json"
 
 
@@ -150,9 +148,8 @@ async def test_agent_chat_endpoint_calls_copilot_service(monkeypatch):
     """
     Test that /agent/chat endpoint calls CopilotService and returns response.
     """
-    monkeypatch.setenv("BACKEND_SHARED_SECRET", "supersecret")
+    monkeypatch.setenv("INTERNAL_SHARED_SECRET", "supersecret")
     monkeypatch.setenv("MIDDLEWARE_BASE_URL", "http://middleware:8080")
-    monkeypatch.setenv("INTERNAL_SHARED_SECRET", "internal-secret")
     
     # Reload modules
     config_module = importlib.import_module("backend.app.config")
