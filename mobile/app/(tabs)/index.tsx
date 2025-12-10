@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { timeAgo } from "../utils/timeAgo";
 import {
   SafeAreaView,
@@ -11,15 +11,19 @@ import {
   Platform,
   Linking,
 } from "react-native";
+import { router } from "expo-router";
 
 import { chatStyles as styles } from "../styles/chatStyles";
+import * as AuthService from "../services/auth";
+import { websocketService } from "../services/websocket";
+import { TypingIndicator } from "../components/TypingIndicator";
 
-// Backend URL
-// const BACKEND_URL = "http://10.0.2.2:8000/chat"; // in the laptop, run with emulator
-const BACKEND_URL = "http://192.168.1.34:8000/chat"; // run in the mobile phone
+// Middleware URL - should be set via environment variable
+const MIDDLEWARE_URL = process.env.EXPO_PUBLIC_MIDDLEWARE_URL || "http://localhost:8080";
 
 // Limits
 const MAX_MESSAGE_LENGTH = 1500;
+const TYPING_DEBOUNCE_MS = 200;
 
 // =============================
 // Types aligned with backend
@@ -75,6 +79,94 @@ export default function Page() {
   const [isSending, setIsSending] = useState(false);
   const [tick, setTick] = useState(0);
   const [hasLoadedIntro, setHasLoadedIntro] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const wsUnsubscribeRef = useRef<(() => void) | null>(null);
+
+  // Check authentication and connect WebSocket on mount
+  useEffect(() => {
+    const initializeAuthAndWebSocket = async () => {
+      try {
+        const token = await AuthService.getToken();
+        
+        if (!token || AuthService.isTokenExpired(token)) {
+          // No valid token, navigate to auth
+          router.push("/AuthWebView");
+          return;
+        }
+
+        // Generate or use existing conversation ID
+        const currentConversationId = conversationId || `conv-${Date.now()}`;
+        setConversationId(currentConversationId);
+
+        // Connect WebSocket
+        try {
+          await websocketService.connect(MIDDLEWARE_URL, token);
+          
+          // Subscribe to conversation
+          websocketService.subscribe(currentConversationId);
+
+          // Register event handler
+          const unsubscribe = websocketService.onEvent((event) => {
+            handleWebSocketEvent(event);
+          });
+          wsUnsubscribeRef.current = unsubscribe;
+
+          console.log("WebSocket connected and subscribed to", currentConversationId);
+        } catch (error) {
+          console.error("Failed to connect WebSocket:", error);
+        }
+      } catch (error) {
+        console.error("Failed to initialize auth:", error);
+        router.push("/AuthWebView");
+      }
+    };
+
+    initializeAuthAndWebSocket();
+
+    // Cleanup on unmount
+    return () => {
+      if (wsUnsubscribeRef.current) {
+        wsUnsubscribeRef.current();
+      }
+      websocketService.disconnect();
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Handle WebSocket events
+  const handleWebSocketEvent = (event: any) => {
+    if (event.type === "assistant.typing.start") {
+      // Debounce typing start by 200ms
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(true);
+      }, TYPING_DEBOUNCE_MS);
+    } else if (event.type === "assistant.typing.end") {
+      // Clear any pending typing start
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+      setIsTyping(false);
+    } else if (event.type === "message") {
+      // Handle incoming messages
+      const botMessage: Message = {
+        id: `msg-${Date.now()}`,
+        from: "bot",
+        text: event.content || event.text || "",
+        timestamp: event.timestamp || new Date().toISOString(),
+        kind: "normal",
+        agentActivity: event.agentActivity || null,
+      };
+      setMessages((prev) => [...prev, botMessage]);
+    }
+  };
 
   // Re-render timeAgo() every 60 seconds
   useEffect(() => {
@@ -83,50 +175,20 @@ export default function Page() {
     }, 60000);
     return () => clearInterval(id);
   }, []);
-
-  // Load intro message on first app open
-  useEffect(() => {
-    const loadIntroMessage = async () => {
-      if (hasLoadedIntro) return;
-      
-      try {
-        // Send empty message to trigger Copilot's intro
-        const response = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "" }), // Empty to get intro
-        });
-
-        const data = await response.json();
-        
-        if (data.reply) {
-          const introMessage: Message = {
-            id: "intro-" + Date.now(),
-            from: "bot",
-            text: data.reply,
-            timestamp: new Date().toISOString(),
-            kind: "normal",
-          };
-          setMessages([introMessage]);
-        }
-        
-        setHasLoadedIntro(true);
-      } catch (error) {
-        console.error("Failed to load intro:", error);
-        setHasLoadedIntro(true); // Don't retry on error
-      }
-    };
-
-    loadIntroMessage();
-  }, [hasLoadedIntro]);
   
 
   // =============================================
-  // SEND MESSAGE TO BACKEND
+  // SEND MESSAGE TO MIDDLEWARE
   // =============================================
   const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isSending) return;
+    if (!trimmed || isSending || !conversationId) return;
+
+    const token = await AuthService.getToken();
+    if (!token || AuthService.isTokenExpired(token)) {
+      router.push("/AuthWebView");
+      return;
+    }
 
     const nowIso = new Date().toISOString();
 
@@ -143,11 +205,21 @@ export default function Page() {
     setIsSending(true);
 
     try {
-      const response = await fetch(BACKEND_URL, {
+      const response = await fetch(`${MIDDLEWARE_URL}/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: trimmed,
+          conversationId: conversationId,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       const baseId = Date.now().toString();
@@ -181,6 +253,7 @@ export default function Page() {
         setMessages((prev) => [...prev, botMessage]);
       }
     } catch (err) {
+      console.error("Failed to send message:", err);
       const errorMessage: Message = {
         id: Date.now().toString() + "-err",
         from: "bot",
@@ -450,6 +523,7 @@ export default function Page() {
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           extraData={tick}
+          ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         />
 
         <View style={styles.inputRow}>
