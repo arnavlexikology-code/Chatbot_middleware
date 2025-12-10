@@ -1,146 +1,124 @@
-# Mobile Chatbot Agent
+# Chatbot Middleware
 
-Full-stack chatbot application with React Native (Expo) mobile frontend and FastAPI backend integrated with Microsoft Copilot Studio SDK for AI-powered conversations.
+A flexible, modular, and scalable middleware framework designed to power chatbot applications across different platforms. This project integrates Python for backend processing and JavaScript/TypeScript for frontend interactions, providing a full-stack foundation for building intelligent conversational systems.
 
-## Project Structure
+# 🚀 Overview
 
-```
-├── backend/              # FastAPI Python backend
-│   ├── main.py          # Main server file
-│   ├── copilot_service.py    # Copilot Studio integration
-│   ├── local_token_cache.py  # Token caching for auth
-│   ├── requirements.txt      # Python dependencies
-│   └── .env             # Environment variables (not committed)
+Chatbot Middleware acts as the connective layer between:
+Client/UI
+Business Logic
+AI/LLM Integrations
+External APIs / Data Pipelines
+It enables clean message flow, processing, transformation, and routing — exactly what a modern chatbot system needs to stay extensible and maintainable.
+
+# ✨ Key Features
+🔧 Backend (Python)
+Message parsing & transformation
+Middleware chain for chatbot logic
+Easy integration with AI/LLM models
+API endpoints for sending/receiving messages
+Expandable architecture for plugins, tools, or services
+
+# 💬 Frontend (TypeScript/JavaScript)
+UI components for entering and viewing messages
+Fetch/WebSocket support for realtime interactions
+Modular structure for embedding chatbot UI anywhere
+
+# 🧩 Middleware Architecture
+Each function handles one task
+Add/remove layers without rewriting core logic
+Ideal for logging, preprocessing, analytics, throttling, etc.
+
+# 🌐 Extensible
+Plug in any LLM (OpenAI, Gemini, Claude, etc.)
+Attach databases, vector stores, or custom retrieval systems
+Build your own flows, rules, and message processing stages
+
+# 📁 Project Structure
+Chatbot_middleware/
 │
-└── mobile/              # React Native Expo mobile app
-    ├── app/             # Application screens
-    ├── components/      # Reusable components
-    └── package.json     # Node dependencies
-```
+├── backend/
+│   ├── main.py               # Main API / App entrypoint
+│   ├── middleware/           # Middleware logic modules
+│   ├── handlers/             # Chat handlers / LLM connectors
+│   └── requirements.txt      # Python dependencies
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/       # Chat UI components
+│   │   └── services/         # API callers
+│   ├── package.json
+│   └── tsconfig.json
+│
+└── README.md
 
-## Prerequisites
+# 🛠️ Installation & Setup
+1. Clone the Repository
+git clone https://github.com/arnavlexikology-code/Chatbot_middleware.git
+cd Chatbot_middleware
 
-- **Python 3.13+** (backend)
-- **Node.js 18+** and npm (mobile)
-- **Microsoft Copilot Studio** agent credentials
-- **Azure AD** account for authentication
+# 🐍 Backend Setup (Python)
+Create Virtual Env
+python3 -m venv venv
+source venv/bin/activate     # macOS/Linux
+venv\Scripts\activate        # Windows
 
-## Setup Instructions
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Shir-hue/Mobile-Chatbot-Agent.git
-cd Mobile-Chatbot-Agent
-```
-
-### 2. Backend Setup
-
-```bash
-cd backend
-
-# Create virtual environment (recommended)
-python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Mac/Linux
-
-# Install dependencies
+# Install Dependencies
 pip install -r requirements.txt
 
-# Create .env file with your Copilot Studio credentials
-# Ask your team lead for the credentials
-```
+Run Backend
+python main.py
 
-**Create `backend/.env` file:**
-```env
-COPILOTSTUDIOAGENT__ENVIRONMENTID="your-environment-id"
-COPILOTSTUDIOAGENT__SCHEMANAME="your-schema-name"
-COPILOTSTUDIOAGENT__TENANTID="your-tenant-id"
-COPILOTSTUDIOAGENT__AGENTAPPID="your-agent-app-id"
-```
+Backend typically starts on:
+http://localhost:8000
 
-**Start the backend server:**
-```bash
-python -m uvicorn main:app --reload --host 0.0.0.0
-```
+# 🌐 Frontend Setup (TS/JS)
+Navigate to frontend folder
+cd frontend
 
-The backend will run on `http://0.0.0.0:8000`
+Install Dependencies
+npm install
 
-**First-time authentication:**
-- On first run, a browser window will open for Microsoft login
-- Sign in with your Azure AD account (MFA may be required)
-- Token will be cached in `.local_token_cache.json` for subsequent runs
+Run Dev Server
+npm start
 
-### 3. Mobile Setup
+Frontend usually runs on:
+http://localhost:3000
 
-# Update backend URL in mobile/app/(tabs)/index.tsx (line 18)
-# Change the IP address to your computer's local IP:
-const BACKEND_URL = "http://YOUR_IP_ADDRESS:8000/chat";
+# 🔄 How the System Works (Flow)
+User → Frontend UI → API Request → Backend Middleware Stack → LLM / Business Logic → Response → Frontend UI
 
-# Start the Expo development server
-npx expo start
-```
+Each stage can be modified independently without breaking the whole system — the biggest advantage of middleware-based architecture.
 
-**Find your IP address:**
-- Windows: `ipconfig` (look for IPv4 Address)
-- Mac/Linux: `ifconfig` or `ip addr`
+# 🧪 Example Usage
+Send a message (backend API example)
 
-**Run on device:**
-- Install Expo Go app on your phone
-- Scan QR code from terminal
-- Or press `a` for Android emulator, `i` for iOS simulator
+POST /chat
 
-## Features
+{
+  "message": "Hello!",
+  "user_id": "123"
+}
 
-- ✅ **AI-Powered Chat**: Integrated with Microsoft Copilot Studio agent
-- ✅ **Auto-Greeting**: Automatic intro message on app load
-- ✅ **Azure AD Authentication**: Secure login with token caching
-- ✅ **Real-time Messaging**: FastAPI backend with async support
-- ✅ **Cross-Platform**: React Native works on iOS and Android
 
-## Development
+Response
 
-### Backend API Endpoints
+{
+  "reply": "Hi! How can I assist you today?"
+}
 
-- `GET /health` - Health check
-- `POST /chat` - Send message to Copilot Studio
-- `GET /copilot/status` - Check Copilot connection
+# 🧩 Customizing Middleware
+You can add new middleware layers like:
+Input sanitization
+Logging
+Sentiment analysis
+Rate limiting
+Analytics tracking
+Routing logic
+Pre/Post processing
 
-### Key Files
+Example (Python):
+def transform_message(message):
+    message["clean"] = message["text"].lower().strip()
+    return message
 
-**Backend:**
-- `copilot_service.py` - Copilot Studio client and message handling
-- `local_token_cache.py` - MSAL token cache implementation
-- `main.py` - FastAPI routes and server setup
-
-**Mobile:**
-- `app/(tabs)/index.tsx` - Main chat interface
-- `app/styles/chatStyles.ts` - Chat UI styling
-
-## Troubleshooting
-
-**Backend won't start:**
-- Ensure Python 3.13+ is installed: `python --version`
-- Check `.env` file exists and has correct credentials
-- Run with: `python -m uvicorn main:app --reload`
-
-**Mobile can't connect to backend:**
-- Verify backend is running: `http://YOUR_IP:8000/health`
-- Update IP address in `index.tsx`
-- Ensure phone and computer are on same WiFi network
-
-**Authentication fails:**
-- Delete `.local_token_cache.json` and restart backend
-- Check Azure AD account has access to Copilot Studio agent
-- Verify `TENANTID` and `AGENTAPPID` in `.env`
-
-## Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Test both backend and mobile
-4. Submit a pull request
-
-## License
-
-Private project - All rights reserved
